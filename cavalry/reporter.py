@@ -26,7 +26,7 @@ def can_inject_stats(request):
 
 def inject_html(request, response, data, summary_data):
     try:
-        body_closing_index = response.content.index(b'</body>')
+        body_closing_index = response.content.rindex(b'</body>')
     except ValueError:
         return
     content = ' | '.join(
@@ -48,6 +48,9 @@ def inject_html(request, response, data, summary_data):
         html.encode('utf-8') +
         response.content[body_closing_index:]
     )
+
+    if 'content-length' in response:
+        response['content-length'] = len(response.content)
 
 
 def generate_console_script(data, with_stacks=False):
