@@ -2,13 +2,12 @@ import json
 import platform
 from datetime import datetime
 from logging import getLogger
-from traceback import FrameSummary
 
+import requests
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import force_bytes
 
-import requests
 from cavalry.stack import Stack
 
 try:

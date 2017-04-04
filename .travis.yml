@@ -11,7 +11,7 @@ install:
   - pip install -U pip pytest>=3.0.0
   - "pip install $DJANGO -e .[dev]"
 script:
-  - flake8 safespace
+  - flake8 cavalry
   - py.test -vvv --cov .
 after_success:
   - bash <(curl -s https://codecov.io/bash)
