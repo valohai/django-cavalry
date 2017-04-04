@@ -11,13 +11,17 @@ A Performance Tracer!
 ## Setup
 
 * Add `'cavalry.middleware.cavalry'` to your middleware.
+* Add `CAVALRY_ENABLED = bool(DEBUG)` (or similar~) to your settings.
 
 ## Settings – General
 
 ### `CAVALRY_ENABLED`
-(boolean, default True)
+(boolean, default False)
 
-Master switch for the middleware.  This is toggleable during runtime, though.
+Master switch for the middleware.
+
+This is toggleable during runtime. That is, it does not
+wholesale disable the middleware forever via the `MiddlewareNotUsed` mechanism.
 
 ### `CAVALRY_PROBABILITY`
 (float, default 1)
