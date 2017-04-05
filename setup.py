@@ -13,7 +13,7 @@ if __name__ == '__main__':
     setuptools.setup(
         name='django-cavalry',
         description='Performance tracer middleware for Django',
-        version='0.0.1',
+        version='0.0.2',
         url='https://github.com/valohai/django-cavalry',
         author='Valohai',
         maintainer='Aarni Koskela',
