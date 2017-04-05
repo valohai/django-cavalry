@@ -21,7 +21,16 @@ padding:1px;
 
 
 def can_inject_stats(request):
-    return (settings.DEBUG or request.user.is_superuser)
+    # When debugging, stats can always be shown
+    if settings.DEBUG:
+        return True
+
+    # When the user (if there is one) is a superuser, stats can be shown
+    user = getattr(request, 'user', None)
+    if user and getattr(user, 'is_superuser', False):
+        return True
+
+    return False
 
 
 def inject_html(request, response, data, summary_data):
