@@ -16,8 +16,10 @@ from cavalry.stack import Stack
 try:
     from ipware import get_ip
 except ImportError:
+
     def get_ip(request: WSGIRequest) -> str:
         return request.META.get('REMOTE_ADDR')
+
 
 log = getLogger(__name__)
 
@@ -39,16 +41,20 @@ def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Resp
         return None
     payload = build_payload(data, request, response)
     es_url = es_url_template.format_map(
-        dict(
-            payload,
-            ymd=datetime.utcnow().strftime('%Y-%m-%d'),
-        ),
+        dict(payload, ymd=datetime.utcnow().strftime('%Y-%m-%d')),
     )
     body = force_bytes(json.dumps(payload, cls=PayloadJSONEncoder))
     try:
-        resp = sess.post(es_url, data=body, headers={'Content-Type': 'application/json'}, timeout=0.5)
+        resp = sess.post(
+            es_url, data=body, headers={'Content-Type': 'application/json'}, timeout=0.5
+        )
         if resp.status_code != 201:
-            log.warning('Unable to post data to %s (error %s): %s', es_url, resp.status_code, resp.text)
+            log.warning(
+                'Unable to post data to %s (error %s): %s',
+                es_url,
+                resp.status_code,
+                resp.text,
+            )
         return resp
     except Exception as e:
         log.warning('Unable to post data to %s: %s', es_url, e)
@@ -67,14 +73,14 @@ def build_payload(data: dict, request: WSGIRequest, response: HttpResponse) -> d
     }
     resolver_match = getattr(request, 'resolver_match', None)
     if resolver_match:
-        payload.update({
-            'view': resolver_match.view_name,
-        })
+        payload.update(
+            {'view': resolver_match.view_name,}
+        )
     user = getattr(request, 'user', None)
     if user:
-        payload.update({
-            'user_id': user.id,
-        })
+        payload.update(
+            {'user_id': user.id,}
+        )
     payload.update(data)
     payload.pop('start_time', None)
     payload.pop('end_time', None)

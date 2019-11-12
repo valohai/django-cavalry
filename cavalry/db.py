@@ -38,18 +38,24 @@ class CavalryCursorDebugWrapper(CursorWrapper):
 
     def _record(self, sql: str, params, duration: float, times=None):
         if get_storage().get('db_record_stacks'):
-            stack = Stack(traceback.extract_stack()[:-2])  # the two last frames are in cavalry
+            # The two last frames are in cavalry, so slice them off
+            stack = Stack(traceback.extract_stack()[:-2])
         else:
             stack = []
-        self.db.queries_log.append({
-            'sql': (f'{times} times: {sql}' if times else sql),
-            'time': f"{duration:.3f}",
-            'hrtime': duration,
-            'stack': stack,
-        })
+        self.db.queries_log.append(
+            {
+                'sql': (f'{times} times: {sql}' if times else sql),
+                'time': f"{duration:.3f}",
+                'hrtime': duration,
+                'stack': stack,
+            }
+        )
         logger.debug(
-            '(%.3f) %s; args=%s', duration, sql, params,
-            extra={'duration': duration, 'sql': sql, 'params': params}
+            '(%.3f) %s; args=%s',
+            duration,
+            sql,
+            params,
+            extra={'duration': duration, 'sql': sql, 'params': params},
         )
 
 

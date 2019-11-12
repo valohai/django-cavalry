@@ -24,7 +24,7 @@ def can_record_stacks(request: WSGIRequest) -> bool:
     # By default, only record stacks if we're
     # allowed to and going to use them for posting or reporting.
     if getattr(settings, 'CAVALRY_DB_RECORD_STACKS', True):
-        return (can_post_stats(request) or can_report_stacks(request))
+        return can_post_stats(request) or can_report_stacks(request)
     return False
 
 

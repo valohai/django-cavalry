@@ -5,7 +5,13 @@ from django.template.response import SimpleTemplateResponse
 
 from cavalry.db import force_debug_cursor, patch_db
 from cavalry.locals import managed
-from cavalry.policy import can_cavalrize, can_inject_stats, can_post_stats, can_post_threaded, can_record_stacks
+from cavalry.policy import (
+    can_cavalrize,
+    can_inject_stats,
+    can_post_stats,
+    can_post_threaded,
+    can_record_stacks,
+)
 from cavalry.poster import post_stats
 from cavalry.reporter import inject_stats
 from cavalry.timing import get_time
@@ -24,10 +30,14 @@ def _process(request, get_response):
         data['databases'] = {}
         for conn in connections.all():
             queries = conn.queries
+            if queries:
+                total_time = sum(q.get('hrtime', 0) * 1000 for q in queries)
+            else:
+                total_time = 0
             data['databases'][conn.alias] = {
                 'queries': queries,
                 'n_queries': len(queries),
-                'time': (sum(q.get('hrtime', 0) * 1000 for q in queries) if queries else 0),
+                'time': total_time,
             }
 
     if can_inject_stats(request):
@@ -36,7 +46,12 @@ def _process(request, get_response):
     if can_post_stats(request):
         post_stats_kwargs = {'request': request, 'response': response, 'data': data}
         if can_post_threaded(request):
-            Thread(name='cavalry poster', target=post_stats, kwargs=post_stats_kwargs, daemon=False).start()
+            Thread(
+                name='cavalry poster',
+                target=post_stats,
+                kwargs=post_stats_kwargs,
+                daemon=False,
+            ).start()
         else:
             post_stats(**post_stats_kwargs)
 

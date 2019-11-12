@@ -11,7 +11,9 @@ import requests_mock
 @pytest.mark.parametrize('posting', (False, True))
 def test_cavalry(settings, as_admin, enable, posting, admin_user):
     settings.CAVALRY_ENABLED = enable
-    settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE = ('http://localhost:59595/asdf/foo' if posting else None)
+    settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE = (
+        'http://localhost:59595/asdf/foo' if posting else None
+    )
     client = Client()
     if as_admin:
         user = admin_user
@@ -19,7 +21,11 @@ def test_cavalry(settings, as_admin, enable, posting, admin_user):
     else:
         user = None
     with requests_mock.mock() as m:
-        m.post(settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE, status_code=201, json={'ok': True})
+        m.post(
+            settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE,
+            status_code=201,
+            json={'ok': True},
+        )
         content = client.get('/').content
 
     # Check precondition: the user seemed logged in
