@@ -4,16 +4,17 @@ from datetime import datetime
 from logging import getLogger
 
 import requests
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import force_bytes
 
+from cavalry.policy import can_serialize_stacks, get_request_es_url_template
 from cavalry.stack import Stack
 
 try:
     from ipware import get_ip
 except ImportError:
-    def get_ip(request): return request.META.get('REMOTE_ADDR')
+    def get_ip(request):
+        return request.META.get('REMOTE_ADDR')
 
 log = getLogger(__name__)
 
@@ -23,16 +24,16 @@ sess = requests.Session()  # Persistent requests session, yes
 class PayloadJSONEncoder(DjangoJSONEncoder):
     def default(self, obj):
         if isinstance(obj, Stack):
-            if not getattr(settings, 'CAVALRY_POST_STACKS', True):
+            if not can_serialize_stacks(request=None):
                 return ''
             return '\n'.join(obj.as_lines())
         return super().default(obj)
 
 
 def post_stats(request, response, data):
-    es_url_template = getattr(settings, 'CAVALRY_ELASTICSEARCH_URL_TEMPLATE', None)
+    es_url_template = get_request_es_url_template(request)
     if not es_url_template:
-        return
+        return None
     payload = build_payload(data, request, response)
     es_url = es_url_template.format_map(
         dict(
@@ -45,6 +46,7 @@ def post_stats(request, response, data):
         resp = sess.post(es_url, data=body, headers={'Content-Type': 'application/json'}, timeout=0.5)
         if resp.status_code != 201:
             log.warning('Unable to post data to %s (error %s): %s', es_url, resp.status_code, resp.text)
+        return resp
     except Exception as e:
         log.warning('Unable to post data to %s: %s', es_url, e)
 

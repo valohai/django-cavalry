@@ -1,8 +1,8 @@
 import json
 
-from django.conf import settings
 from django.utils.crypto import get_random_string
 
+from cavalry.policy import can_report_stacks
 
 STYLE = '''
 #cv {
@@ -18,19 +18,6 @@ color:#fff;
 padding:1px;
 }
 '''.replace('\n', '').strip()
-
-
-def can_inject_stats(request):
-    # When debugging, stats can always be shown
-    if settings.DEBUG:
-        return True
-
-    # When the user (if there is one) is a superuser, stats can be shown
-    user = getattr(request, 'user', None)
-    if user and getattr(user, 'is_superuser', False):
-        return True
-
-    return False
 
 
 def inject_html(request, response, data, summary_data):
@@ -49,7 +36,7 @@ def inject_html(request, response, data, summary_data):
         content=content,
         style=STYLE.replace('#cv', '#' + ns),
     )
-    script = generate_console_script(data, with_stacks=bool(request.GET.get('_cavalry_stacks')))
+    script = generate_console_script(data, with_stacks=can_report_stacks(request))
     html += "<script>{script}</script>".format(script='\n'.join(script))
 
     response.content = (
@@ -87,8 +74,6 @@ def generate_console_script(data, with_stacks=False):
 
 
 def inject_stats(request, response, data):
-    if not can_inject_stats(request):
-        return
     summary_data = summarize_data(data)
     content_type = response.get('content-type', '').lower()
     if content_type.startswith('text/html') and ('charset' not in content_type or 'utf-8' in content_type):
