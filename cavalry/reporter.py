@@ -30,18 +30,15 @@ def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summar
     except ValueError:
         return
     content = ' | '.join(
-        '%s=%s' % (key, round(value, 3) if isinstance(value, float) else value)
+        f'{key}={round(value, 3) if isinstance(value, float) else value}'
         for (key, value)
         in sorted(summary_data.items())
     )
-    ns = 'cv_%s' % get_random_string()
-    html = """<style>{style}</style><div id="{ns}">{content}</div>""".format(
-        ns=ns,
-        content=content,
-        style=STYLE.replace('#cv', '#' + ns),
-    )
+    ns = f'cv_{get_random_string()}'
+    html = f"<style>{STYLE.replace('#cv', '#' + ns)}</style><div id=\"{ns}\">{content}</div>"
     script = generate_console_script(data, with_stacks=can_report_stacks(request))
-    html += "<script>{script}</script>".format(script='\n'.join(script))
+    script = '\n'.join(script)
+    html += f"<script>{script}</script>"
 
     response.content = (
         response.content[:body_closing_index] +
@@ -57,20 +54,17 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
     script = []
     for db, data in data.get('databases', {}).items():
         queries = data['queries']
-        header = '{db}: {n} queries ({t} msec)'.format(
-            db=db,
-            n=data['n_queries'],
-            t=data['time'],
-        )
-        script.append('console.group({});'.format(json.dumps(header)))
+        header = f'{db}: {data["n_queries"]} queries ({data["time"]} msec)'
+        script.append(f'console.group({json.dumps(header)});')
         for query in queries:
             stack = (query.get('stack', None) if with_stacks else ())
-            script.append('console.log({time:.3f}, {sql});'.format(
-                time=query.get('hrtime', 0) * 1000, sql=json.dumps(query['sql'])))
+            query_time = query.get('hrtime', 0) * 1000
+            script.append(f'console.log({query_time:.3f}, {json.dumps(query["sql"])});')
             if stack:
                 script.append('console.groupCollapsed("Stack");')
                 stack_lines = stack.as_lines()
-                script.append('console.log({});'.format(json.dumps('\n'.join(stack_lines))))
+                stack_json = json.dumps('\n'.join(stack_lines))
+                script.append(f'console.log({stack_json});')
                 script.append('console.groupEnd();')
 
         script.append('console.groupEnd();')
@@ -90,6 +84,6 @@ def summarize_data(data: dict) -> dict:
         'request time': data['duration'] * 1000,
     }
     for db, db_data in data.get('databases', {}).items():
-        summary_data['queries [%s]' % db] = db_data['n_queries']
-        summary_data['time [%s]' % db] = db_data['time']
+        summary_data[f'queries [{db}]'] = db_data['n_queries']
+        summary_data[f'time [{db}]'] = db_data['time']
     return summary_data

@@ -42,8 +42,8 @@ class CavalryCursorDebugWrapper(CursorWrapper):
         else:
             stack = []
         self.db.queries_log.append({
-            'sql': ('%s times: %s' % (times, sql) if times else sql),
-            'time': "%.3f" % duration,
+            'sql': (f'{times} times: {sql}' if times else sql),
+            'time': f"{duration:.3f}",
             'hrtime': duration,
             'stack': stack,
         })
