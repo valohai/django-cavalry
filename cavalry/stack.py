@@ -5,7 +5,6 @@ from typing import List
 ELIDED_FILENAMES = [
     'socketserver.py',
     'threading.py',
-
     # Middleware-related stack frames
     'django/utils/deprecation.py',
     'django/core/handlers/exception.py',

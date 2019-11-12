@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
@@ -21,18 +21,21 @@ background:rgba(0,0,0,0.8);
 color:#fff;
 padding:1px;
 }
-'''.replace('\n', '').strip()
+'''.replace(
+    '\n', ''
+).strip()
 
 
-def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summary_data: dict) -> None:
+def inject_html(
+    request: WSGIRequest, response: HttpResponse, data: dict, summary_data: dict
+) -> None:
     try:
         body_closing_index = response.content.rindex(b'</body>')
     except ValueError:
         return
     content = ' | '.join(
         f'{key}={round(value, 3) if isinstance(value, float) else value}'
-        for (key, value)
-        in sorted(summary_data.items())
+        for (key, value) in sorted(summary_data.items())
     )
     ns = f'cv_{get_random_string()}'
     html = f"<style>{STYLE.replace('#cv', '#' + ns)}</style><div id=\"{ns}\">{content}</div>"
@@ -41,9 +44,9 @@ def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summar
     html += f"<script>{script}</script>"
 
     response.content = (
-        response.content[:body_closing_index] +
-        html.encode('utf-8') +
-        response.content[body_closing_index:]
+        response.content[:body_closing_index]
+        + html.encode('utf-8')
+        + response.content[body_closing_index:]
     )
 
     if 'content-length' in response:
@@ -57,7 +60,7 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
         header = f'{db}: {data["n_queries"]} queries ({data["time"]} msec)'
         script.append(f'console.group({json.dumps(header)});')
         for query in queries:
-            stack = (query.get('stack', None) if with_stacks else ())
+            stack: Optional[Stack] = query.get('stack', None) if with_stacks else None
             query_time = query.get('hrtime', 0) * 1000
             script.append(f'console.log({query_time:.3f}, {json.dumps(query["sql"])});')
             if stack:
@@ -74,7 +77,9 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
 def inject_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> None:
     summary_data = summarize_data(data)
     content_type = response.get('content-type', '').lower()
-    if content_type.startswith('text/html') and ('charset' not in content_type or 'utf-8' in content_type):
+    if content_type.startswith('text/html') and (
+        'charset' not in content_type or 'utf-8' in content_type
+    ):
         inject_html(request, response, data, summary_data)
     response['x-cavalry-data'] = json.dumps(summary_data)
 
