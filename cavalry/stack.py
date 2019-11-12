@@ -19,8 +19,8 @@ class Stack(object):  # Wrapped as an object for easier serialization
         for filename, lineno, fn, text in self.frames:
             if any(filename.endswith(elided_end) for elided_end in ELIDED_FILENAMES):
                 continue
-            filename = re.sub('^.+site-packages/', '~/', filename)
-            filename = re.sub('^.+lib/python\d\.\d/', '!/', filename)
+            filename = re.sub(r'^.+site-packages/', '~/', filename)
+            filename = re.sub(r'^.+lib/python\d\.\d/', '!/', filename)
             stack_lines.append('{filename}:{lineno} ({fn}) {text}'.format(
                 filename=filename,
                 lineno=lineno,
