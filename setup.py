@@ -1,11 +1,12 @@
 import setuptools
 
 dev_dependencies = [
+    'black',
     'flake8',
     'isort',
     'pydocstyle',
     'pytest-cov',
-    'pytest-django>=3.0.0',
+    'pytest-django>=3.7.0',
     'requests-mock',
 ]
 

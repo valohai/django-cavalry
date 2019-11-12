@@ -6,7 +6,7 @@ language: python
 python:
   - "3.5"
 env:
-  - DJANGO=django~=1.10.0
+  - DJANGO=django>=2.0,<3
 install:
   - pip install -U pip pytest>=3.0.0
   - "pip install $DJANGO -e .[dev]"
