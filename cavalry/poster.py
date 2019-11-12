@@ -4,8 +4,11 @@ from datetime import datetime
 from logging import getLogger
 
 import requests
+from django.core.handlers.wsgi import WSGIRequest
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http import HttpResponse
 from django.utils.encoding import force_bytes
+from requests import Response
 
 from cavalry.policy import can_serialize_stacks, get_request_es_url_template
 from cavalry.stack import Stack
@@ -13,7 +16,7 @@ from cavalry.stack import Stack
 try:
     from ipware import get_ip
 except ImportError:
-    def get_ip(request):
+    def get_ip(request: WSGIRequest) -> str:
         return request.META.get('REMOTE_ADDR')
 
 log = getLogger(__name__)
@@ -30,7 +33,7 @@ class PayloadJSONEncoder(DjangoJSONEncoder):
         return super().default(obj)
 
 
-def post_stats(request, response, data):
+def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Response:
     es_url_template = get_request_es_url_template(request)
     if not es_url_template:
         return None
@@ -51,7 +54,7 @@ def post_stats(request, response, data):
         log.warning('Unable to post data to %s: %s', es_url, e)
 
 
-def build_payload(data, request, response):
+def build_payload(data: dict, request: WSGIRequest, response: HttpResponse) -> dict:
     payload = {
         'node': platform.node(),
         'content-type': response.get('content-type'),

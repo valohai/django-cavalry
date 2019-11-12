@@ -1,4 +1,6 @@
 import re
+from traceback import FrameSummary
+from typing import List
 
 ELIDED_FILENAMES = [
     'socketserver.py',
@@ -11,10 +13,10 @@ ELIDED_FILENAMES = [
 
 
 class Stack(object):  # Wrapped as an object for easier serialization
-    def __init__(self, frames):
+    def __init__(self, frames: List[FrameSummary]) -> None:
         self.frames = frames
 
-    def as_lines(self):
+    def as_lines(self) -> List[str]:
         stack_lines = []
         for filename, lineno, fn, text in self.frames:
             if any(filename.endswith(elided_end) for elided_end in ELIDED_FILENAMES):
