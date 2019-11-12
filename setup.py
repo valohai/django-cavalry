@@ -25,4 +25,5 @@ if __name__ == '__main__':
         extras_require={'dev': dev_dependencies},
         packages=setuptools.find_packages('.', exclude=('cavalry_tests',)),
         include_package_data=True,
+        python_requires='>=3.6',
     )
