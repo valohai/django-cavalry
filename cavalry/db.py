@@ -36,7 +36,7 @@ class CavalryCursorDebugWrapper(CursorWrapper):
                 times = '?'
             self._record(sql, param_list, duration, times)
 
-    def _record(self, sql, params, duration, times=None):
+    def _record(self, sql: str, params, duration: float, times=None):
         if get_storage().get('db_record_stacks'):
             stack = Stack(traceback.extract_stack()[:-2])  # the two last frames are in cavalry
         else:
@@ -63,5 +63,5 @@ def force_debug_cursor():
         conn.force_debug_cursor = conn._cavalry_old_force_debug_cursor
 
 
-def patch_db():
+def patch_db() -> None:
     db_backend_utils.CursorDebugWrapper = CavalryCursorDebugWrapper

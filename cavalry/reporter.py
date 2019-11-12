@@ -1,8 +1,12 @@
 import json
+from typing import List
 
+from django.core.handlers.wsgi import WSGIRequest
+from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 
 from cavalry.policy import can_report_stacks
+from cavalry.stack import Stack
 
 STYLE = '''
 #cv {
@@ -20,7 +24,7 @@ padding:1px;
 '''.replace('\n', '').strip()
 
 
-def inject_html(request, response, data, summary_data):
+def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summary_data: dict) -> None:
     try:
         body_closing_index = response.content.rindex(b'</body>')
     except ValueError:
@@ -49,7 +53,7 @@ def inject_html(request, response, data, summary_data):
         response['content-length'] = len(response.content)
 
 
-def generate_console_script(data, with_stacks=False):
+def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
     script = []
     for db, data in data.get('databases', {}).items():
         queries = data['queries']
@@ -73,7 +77,7 @@ def generate_console_script(data, with_stacks=False):
     return script
 
 
-def inject_stats(request, response, data):
+def inject_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> None:
     summary_data = summarize_data(data)
     content_type = response.get('content-type', '').lower()
     if content_type.startswith('text/html') and ('charset' not in content_type or 'utf-8' in content_type):
@@ -81,7 +85,7 @@ def inject_stats(request, response, data):
     response['x-cavalry-data'] = json.dumps(summary_data)
 
 
-def summarize_data(data):
+def summarize_data(data: dict) -> dict:
     summary_data = {
         'request time': data['duration'] * 1000,
     }

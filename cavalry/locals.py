@@ -11,5 +11,5 @@ def managed(**kwargs):
     del _storage.data
 
 
-def get_storage():
+def get_storage() -> dict:
     return getattr(_storage, 'data', {})
