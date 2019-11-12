@@ -9,16 +9,12 @@ import requests_mock
 @pytest.mark.parametrize('enable', (False, True))
 @pytest.mark.parametrize('as_admin', (False, True))
 @pytest.mark.parametrize('posting', (False, True))
-def test_cavalry(settings, as_admin, enable, posting, django_user_model):
+def test_cavalry(settings, as_admin, enable, posting, admin_user):
     settings.CAVALRY_ENABLED = enable
     settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE = ('http://localhost:59595/asdf/foo' if posting else None)
     client = Client()
     if as_admin:
-        user = django_user_model.objects.create_superuser(
-            username='adminator',
-            email='adminator@example.com',
-            password='henlo',
-        )
+        user = admin_user
         client.force_login(user)
     else:
         user = None
@@ -27,7 +23,7 @@ def test_cavalry(settings, as_admin, enable, posting, django_user_model):
         content = client.get('/').content
 
     # Check precondition: the user seemed logged in
-    assert (b'adminator' in content) == as_admin
+    assert (admin_user.username.encode() in content) == as_admin
 
     # Check that the injection div only appears for admins
     assert (b'<div' in content) == (enable and as_admin)
