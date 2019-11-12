@@ -23,10 +23,5 @@ class Stack(object):  # Wrapped as an object for easier serialization
                 continue
             filename = re.sub(r'^.+site-packages/', '~/', filename)
             filename = re.sub(r'^.+lib/python\d\.\d/', '!/', filename)
-            stack_lines.append('{filename}:{lineno} ({fn}) {text}'.format(
-                filename=filename,
-                lineno=lineno,
-                fn=fn,
-                text=text,
-            ))
+            stack_lines.append(f'{filename}:{lineno} ({fn}) {text}')
         return stack_lines
