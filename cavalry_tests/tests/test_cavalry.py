@@ -40,3 +40,6 @@ def test_cavalry(settings, as_admin, enable, posting, admin_user):
         payload = json.loads(m.request_history[-1].body.decode('utf-8'))
         # Check that user IDs are sent
         assert payload.get('user_id') == (user.id if user else None)
+        database_info = payload['databases']['default']
+        if database_info['n_queries']:
+            assert database_info['time'] > 0
