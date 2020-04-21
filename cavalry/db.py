@@ -16,7 +16,7 @@ class CavalryCursorDebugWrapper(CursorWrapper):
     def execute(self, sql, params=None):
         start = get_time()
         try:
-            return super(CavalryCursorDebugWrapper, self).execute(sql, params)
+            return super().execute(sql, params)
         finally:
             stop = get_time()
             duration = stop - start
@@ -26,7 +26,7 @@ class CavalryCursorDebugWrapper(CursorWrapper):
     def executemany(self, sql, param_list):
         start = get_time()
         try:
-            return super(CavalryCursorDebugWrapper, self).executemany(sql, param_list)
+            return super().executemany(sql, param_list)
         finally:
             stop = get_time()
             duration = stop - start
