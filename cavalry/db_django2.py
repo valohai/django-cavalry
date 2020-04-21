@@ -1,13 +1,14 @@
-import traceback
 from contextlib import contextmanager
 
+import django
 from django.db import connections
 from django.db.backends import utils as db_backend_utils
-from django.db.backends.utils import CursorWrapper, logger
+from django.db.backends.utils import CursorWrapper
 
-from cavalry.locals import get_storage
-from cavalry.stack import Stack
+from cavalry.db_common import record
 from cavalry.timing import get_time
+
+assert django.VERSION[0] == 2, "This module won't work with Django 3"
 
 
 class CavalryCursorDebugWrapper(CursorWrapper):
@@ -37,36 +38,17 @@ class CavalryCursorDebugWrapper(CursorWrapper):
             self._record(sql, param_list, duration, times)
 
     def _record(self, sql: str, params, duration: float, times=None):
-        if get_storage().get('db_record_stacks'):
-            # The two last frames are in cavalry, so slice them off
-            stack = Stack(traceback.extract_stack()[:-2])
-        else:
-            stack = []
-        self.db.queries_log.append(
-            {
-                'sql': (f'{times} times: {sql}' if times else sql),
-                'time': f"{duration:.3f}",
-                'hrtime': duration,
-                'stack': stack,
-            }
-        )
-        logger.debug(
-            '(%.3f) %s; args=%s',
-            duration,
-            sql,
-            params,
-            extra={'duration': duration, 'sql': sql, 'params': params},
-        )
+        record(db=self.db, sql=sql, params=params, duration=duration, times=times)
 
 
 @contextmanager
-def force_debug_cursor():
+def enable_db_tracing():
     for conn in connections.all():
-        conn._cavalry_old_force_debug_cursor = conn.force_debug_cursor
-        conn.force_debug_cursor = True
+        conn._cavalry_old_force_debug_cursor = conn.enable_db_tracing
+        conn.enable_db_tracing = True
     yield
     for conn in connections.all():
-        conn.force_debug_cursor = conn._cavalry_old_force_debug_cursor
+        conn.enable_db_tracing = conn._cavalry_old_force_debug_cursor
 
 
 def patch_db() -> None:
