@@ -11,7 +11,7 @@ ELIDED_FILENAMES = [
 ]
 
 
-class Stack(object):  # Wrapped as an object for easier serialization
+class Stack:  # Wrapped as an object for easier serialization
     def __init__(self, frames: List[FrameSummary]) -> None:
         self.frames = frames
 

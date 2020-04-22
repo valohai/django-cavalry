@@ -1,9 +1,9 @@
 from threading import Thread
 
+import django
 from django.db import connections
 from django.template.response import SimpleTemplateResponse
 
-from cavalry.db import force_debug_cursor, patch_db
 from cavalry.locals import managed
 from cavalry.policy import (
     can_cavalrize,
@@ -16,9 +16,14 @@ from cavalry.poster import post_stats
 from cavalry.reporter import inject_stats
 from cavalry.timing import get_time
 
+if django.VERSION[0] == 2:
+    from cavalry import db_django2 as db_module
+else:
+    from cavalry import db_django3 as db_module
+
 
 def _process(request, get_response):
-    with force_debug_cursor(), managed(
+    with db_module.enable_db_tracing(), managed(
         db_record_stacks=can_record_stacks(request),
     ) as data:
         data['start_time'] = get_time()
@@ -59,7 +64,7 @@ def _process(request, get_response):
 
 
 def cavalry(get_response):
-    patch_db()
+    db_module.patch_db()
 
     def middleware(request):
         if not can_cavalrize(request):
