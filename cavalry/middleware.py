@@ -34,7 +34,7 @@ def _process(request, get_response):
         data['duration'] = data['end_time'] - data['start_time']
         data['databases'] = {}
         for conn in connections.all():
-            queries = conn.queries
+            queries = [q for q in conn.queries if "hrtime" in q]
             if queries:
                 total_time = sum(q.get('hrtime', 0) * 1000 for q in queries)
             else:
