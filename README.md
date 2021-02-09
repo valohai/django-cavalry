@@ -2,7 +2,7 @@
 
 A Performance Tracer!
 
-![CircleCI](https://img.shields.io/circleci/project/github/valohai/django-cavalry.svg)
+![CircleCI](https://img.shields.io/github/workflow/status/valohai/django-cavalry/build)
 ![Codecov](https://img.shields.io/codecov/c/github/valohai/django-cavalry.svg)
 ![PyPI](https://img.shields.io/pypi/v/django-cavalry.svg)
 ![MIT License](https://img.shields.io/github/license/valohai/django-cavalry.svg)
