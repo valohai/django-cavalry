@@ -64,8 +64,6 @@ def _process(request, get_response):
 
 
 def cavalry(get_response):
-    db_module.patch_db()
-
     def middleware(request):
         if not can_cavalrize(request):
             return get_response(request)

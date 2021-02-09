@@ -29,7 +29,3 @@ def log_query(execute, sql, params, many, context):
 def enable_db_tracing():
     with connection.execute_wrapper(log_query):
         yield
-
-
-def patch_db() -> None:
-    pass
