@@ -10,6 +10,8 @@ from cavalry.timing import get_time
 
 assert django.VERSION[0] == 2, "This module won't work with Django 3"
 
+DefaultCursorDebugWrapper = db_backend_utils.CursorDebugWrapper
+
 
 class CavalryCursorDebugWrapper(CursorWrapper):
     # This is an enhanced version of `django.db.backends.utils.CursorDebugWrapper`.
@@ -44,12 +46,10 @@ class CavalryCursorDebugWrapper(CursorWrapper):
 @contextmanager
 def enable_db_tracing():
     for conn in connections.all():
-        conn._cavalry_old_force_debug_cursor = conn.enable_db_tracing
-        conn.enable_db_tracing = True
+        db_backend_utils.CursorDebugWrapper = CavalryCursorDebugWrapper
+        conn._cavalry_old_force_debug_cursor = conn.force_debug_cursor
+        conn.force_debug_cursor = True
     yield
     for conn in connections.all():
-        conn.enable_db_tracing = conn._cavalry_old_force_debug_cursor
-
-
-def patch_db() -> None:
-    db_backend_utils.CursorDebugWrapper = CavalryCursorDebugWrapper
+        conn.force_debug_cursor = conn._cavalry_old_force_debug_cursor
+        db_backend_utils.CursorDebugWrapper = DefaultCursorDebugWrapper
