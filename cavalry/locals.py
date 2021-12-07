@@ -12,4 +12,4 @@ def managed(**kwargs):
 
 
 def get_storage() -> dict:
-    return getattr(_storage, 'data', {})
+    return getattr(_storage, "data", {})

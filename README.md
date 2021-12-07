@@ -36,6 +36,10 @@ Recording stack traces naturally has a performance impact.
 
 ## Settings – Posting
 
+The `requests` library must be available for posting to work.
+
+You can install it by hand, or by using the `[poster]` extra while installing Cavalry.
+
 ### `CAVALRY_ELASTICSEARCH_URL_TEMPLATE`
 (string)
 
