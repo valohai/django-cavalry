@@ -14,7 +14,9 @@ def record(*, db, duration, params, sql, times=None, error=None):
         stack = []
     db.queries_log.append(
         {
-            "sql": (f"{times} times: {sql}" if times else sql),
+            "sql": sql,
+            "params": params,
+            "times": times,
             "time": f"{duration:.3f}",
             "hrtime": duration,
             "stack": stack,

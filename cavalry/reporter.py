@@ -1,3 +1,4 @@
+import contextlib
 import json
 import uuid
 from typing import List, Optional
@@ -56,9 +57,8 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
         header = f'{db}: {data["n_queries"]} queries ({data["time"]:.2f} msec)'
         script.append(f"console.group({json.dumps(header)});")
         for query in queries:
+            script.append(build_log_command(query))
             stack: Optional[Stack] = query.get("stack", None) if with_stacks else None
-            query_time = query.get("hrtime", 0) * 1000
-            script.append(f'console.log({query_time:.3f}, {json.dumps(query["sql"])});')
             if stack:
                 script.append('console.groupCollapsed("Stack");')
                 stack_lines = stack.as_lines()
@@ -68,6 +68,19 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
 
         script.append("console.groupEnd();")
     return script
+
+
+def build_log_command(query: dict) -> str:
+    query_time = query.get("hrtime", 0) * 1000
+    args = [
+        f"{query_time:.3f}",
+        json.dumps(query["sql"]),
+    ]
+    with contextlib.suppress(Exception):
+        params = query.get("params")
+        if params:
+            args.append(json.dumps(params, default=str))
+    return f'console.log({", ".join(args)});'
 
 
 def inject_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> None:
