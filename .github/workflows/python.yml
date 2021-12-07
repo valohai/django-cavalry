@@ -30,7 +30,7 @@ jobs:
       #    key: '${{ runner.os }}-${{ hashFiles(''TODO'') }}'
       - uses: actions/checkout@v2
       - run: pip install -U pip pytest>=3.0.0
-      - run: 'pip install $DJANGO -e .[dev]'
+      - run: 'pip install $DJANGO -e .[dev,poster]'
         env:
           DJANGO: '${{ matrix.DJANGO }}'
       - run: py.test -vvv --cov .
@@ -42,7 +42,7 @@ jobs:
         with:
           python-version: '3.10'
       - uses: actions/checkout@v2
-      - run: 'pip install -e .[dev]'
+      - run: 'pip install -e .[dev,poster]'
       - run: flake8 .
       - run: black --check .
       - run: isort --check .

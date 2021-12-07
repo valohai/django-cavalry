@@ -2,16 +2,18 @@ import json
 import platform
 from datetime import datetime
 from logging import getLogger
+from typing import TYPE_CHECKING
 
-import requests
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.utils.encoding import force_bytes
-from requests import Response
 
 from cavalry.policy import can_serialize_stacks, get_request_es_url_template
 from cavalry.stack import Stack
+
+if TYPE_CHECKING:
+    import requests
 
 try:
     from ipware import get_ip
@@ -23,7 +25,16 @@ except ImportError:
 
 log = getLogger(__name__)
 
-sess = requests.Session()  # Persistent requests session, yes
+_requests_session = None
+
+
+def get_requests_session():
+    global _requests_session
+    if not _requests_session:
+        import requests
+
+        _requests_session = requests.Session()  # Persistent requests session, yes
+    return _requests_session
 
 
 class PayloadJSONEncoder(DjangoJSONEncoder):
@@ -35,7 +46,7 @@ class PayloadJSONEncoder(DjangoJSONEncoder):
         return super().default(obj)
 
 
-def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Response:
+def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> "requests.Response":
     es_url_template = get_request_es_url_template(request)
     if not es_url_template:
         return None
@@ -45,6 +56,7 @@ def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Resp
     )
     body = force_bytes(json.dumps(payload, cls=PayloadJSONEncoder))
     try:
+        sess = get_requests_session()
         resp = sess.post(es_url, data=body, headers={"Content-Type": "application/json"}, timeout=0.5)
         if resp.status_code != 201:
             log.warning(
