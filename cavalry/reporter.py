@@ -53,7 +53,7 @@ def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
     script = []
     for db, data in data.get("databases", {}).items():
         queries = data["queries"]
-        header = f'{db}: {data["n_queries"]} queries ({data["time"]} msec)'
+        header = f'{db}: {data["n_queries"]} queries ({data["time"]:.2f} msec)'
         script.append(f"console.group({json.dumps(header)});")
         for query in queries:
             stack: Optional[Stack] = query.get("stack", None) if with_stacks else None
