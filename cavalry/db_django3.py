@@ -10,7 +10,7 @@ assert django.VERSION[0] != 2, "This module won't work with Django 2"
 
 
 def log_query(execute, sql, params, many, context):
-    db = context['connection']
+    db = context["connection"]
     start = get_time()
     error = None
     try:

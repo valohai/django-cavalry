@@ -36,7 +36,7 @@ class CavalryCursorDebugWrapper(CursorWrapper):
             try:
                 times = len(param_list)
             except TypeError:  # param_list could be an iterator
-                times = '?'
+                times = "?"
             self._record(sql, param_list, duration, times)
 
     def _record(self, sql: str, params, duration: float, times=None):

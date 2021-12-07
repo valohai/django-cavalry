@@ -26,33 +26,33 @@ def _process(request, get_response):
     with db_module.enable_db_tracing(), managed(
         db_record_stacks=can_record_stacks(request),
     ) as data:
-        data['start_time'] = get_time()
+        data["start_time"] = get_time()
         response = get_response(request)
         if isinstance(response, SimpleTemplateResponse):
             response.render()
-        data['end_time'] = get_time()
-        data['duration'] = data['end_time'] - data['start_time']
-        data['databases'] = {}
+        data["end_time"] = get_time()
+        data["duration"] = data["end_time"] - data["start_time"]
+        data["databases"] = {}
         for conn in connections.all():
             queries = [q for q in conn.queries if "hrtime" in q]
             if queries:
-                total_time = sum(q.get('hrtime', 0) * 1000 for q in queries)
+                total_time = sum(q.get("hrtime", 0) * 1000 for q in queries)
             else:
                 total_time = 0
-            data['databases'][conn.alias] = {
-                'queries': queries,
-                'n_queries': len(queries),
-                'time': total_time,
+            data["databases"][conn.alias] = {
+                "queries": queries,
+                "n_queries": len(queries),
+                "time": total_time,
             }
 
     if can_inject_stats(request):
         inject_stats(request, response, data)
 
     if can_post_stats(request):
-        post_stats_kwargs = {'request': request, 'response': response, 'data': data}
+        post_stats_kwargs = {"request": request, "response": response, "data": data}
         if can_post_threaded(request):
             Thread(
-                name='cavalry poster',
+                name="cavalry poster",
                 target=post_stats,
                 kwargs=post_stats_kwargs,
                 daemon=False,
