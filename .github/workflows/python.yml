@@ -8,16 +8,16 @@ name: build
       - master
 jobs:
   build:
-    runs-on: '${{ matrix.os }}'
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         include:
-          - os: ubuntu-18.04
-            python-version: '3.6'
+          - python-version: '3.6'
             DJANGO: 'django>=2.0,<3'
-          - os: ubuntu-18.04
-            python-version: '3.6'
+          - python-version: '3.6'
             DJANGO: 'django>=3.0,<4'
+          - python-version: '3.10'
+            DJANGO: 'django>=4.0,<5'
     steps:
       - name: 'Set up Python ${{ matrix.python-version }}'
         uses: actions/setup-python@v2
