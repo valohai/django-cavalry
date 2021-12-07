@@ -1,9 +1,9 @@
 import json
+import uuid
 from typing import List, Optional
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
-from django.utils.crypto import get_random_string
 
 from cavalry.policy import can_report_stacks
 from cavalry.stack import Stack
@@ -35,7 +35,7 @@ def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summar
         f"{key}={round(value, 3) if isinstance(value, float) else value}"
         for (key, value) in sorted(summary_data.items())
     )
-    ns = f"cv_{get_random_string()}"
+    ns = f"cv_{uuid.uuid4().hex}"
     html = f"<style>{STYLE.replace('#cv', '#' + ns)}</style><div id=\"{ns}\">{content}</div>"
     script = generate_console_script(data, with_stacks=can_report_stacks(request))
     script = "\n".join(script)
