@@ -19,7 +19,7 @@ from cavalry.timing import get_time
 if django.VERSION[0] == 2:
     from cavalry import db_django2 as db_module
 else:
-    from cavalry import db_django3 as db_module
+    from cavalry import db_django3 as db_module  # type: ignore[no-redef]
 
 
 def _process(request, get_response):

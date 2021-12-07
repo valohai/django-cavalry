@@ -2,7 +2,7 @@ import json
 import platform
 from datetime import datetime
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.serializers.json import DjangoJSONEncoder
@@ -46,7 +46,7 @@ class PayloadJSONEncoder(DjangoJSONEncoder):
         return super().default(obj)
 
 
-def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> "requests.Response":
+def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Optional["requests.Response"]:
     es_url_template = get_request_es_url_template(request)
     if not es_url_template:
         return None
@@ -68,6 +68,7 @@ def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> "req
         return resp
     except Exception as e:
         log.warning("Unable to post data to %s: %s", es_url, e)
+    return None
 
 
 def build_payload(data: dict, request: WSGIRequest, response: HttpResponse) -> dict:
