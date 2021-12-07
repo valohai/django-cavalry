@@ -38,8 +38,7 @@ def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summar
     )
     ns = f"cv_{uuid.uuid4().hex}"
     html = f"<style>{STYLE.replace('#cv', '#' + ns)}</style><div id=\"{ns}\">{content}</div>"
-    script = generate_console_script(data, with_stacks=can_report_stacks(request))
-    script = "\n".join(script)
+    script = "\n".join(generate_console_script(data, with_stacks=can_report_stacks(request)))
     html += f"<script>{script}</script>"
 
     response.content = (
