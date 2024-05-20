@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "pytest>=3.0.0",
     "pytest-cov",
     "pytest-django>=3.7.0",
     "requests-mock",
