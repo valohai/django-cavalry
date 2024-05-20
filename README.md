@@ -7,15 +7,15 @@ A Performance Tracer!
 ![PyPI](https://img.shields.io/pypi/v/django-cavalry.svg)
 ![MIT License](https://img.shields.io/github/license/valohai/django-cavalry.svg)
 
-
 ## Setup
 
-* Add `'cavalry.middleware.cavalry'` to your middleware.
-* Add `CAVALRY_ENABLED = bool(DEBUG)` (or similar~) to your settings.
+- Add `'cavalry.middleware.cavalry'` to your middleware.
+- Add `CAVALRY_ENABLED = bool(DEBUG)` (or similar~) to your settings.
 
 ## Settings – General
 
 ### `CAVALRY_ENABLED`
+
 (boolean, default False)
 
 Master switch for the middleware.
@@ -24,11 +24,13 @@ This is toggleable during runtime. That is, it does not
 wholesale disable the middleware forever via the `MiddlewareNotUsed` mechanism.
 
 ### `CAVALRY_PROBABILITY`
+
 (float, default 1)
 
 Probability (0..1) for a request to be traced; useful in production.
 
 ### `CAVALRY_DB_RECORD_STACKS`
+
 (boolean, default True)
 
 Whether or not database stack traces should be recorded.
@@ -41,6 +43,7 @@ The `requests` library must be available for posting to work.
 You can install it by hand, or by using the `[poster]` extra while installing Cavalry.
 
 ### `CAVALRY_ELASTICSEARCH_URL_TEMPLATE`
+
 (string)
 
 An URL template for posting payloads to Elasticsearch.

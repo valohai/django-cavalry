@@ -1,5 +1,5 @@
 name: build
-'on':
+"on":
   push:
     branches:
       - master
@@ -12,17 +12,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version: '3.6'
-            DJANGO: 'django>=2.0,<3'
-          - python-version: '3.6'
-            DJANGO: 'django>=3.0,<4'
-          - python-version: '3.10'
-            DJANGO: 'django>=4.0,<5'
+          - python-version: "3.6"
+            DJANGO: "django>=2.0,<3"
+          - python-version: "3.6"
+            DJANGO: "django>=3.0,<4"
+          - python-version: "3.10"
+            DJANGO: "django>=4.0,<5"
     steps:
-      - name: 'Set up Python ${{ matrix.python-version }}'
+      - name: "Set up Python ${{ matrix.python-version }}"
         uses: actions/setup-python@v2
         with:
-          python-version: '${{ matrix.python-version }}'
+          python-version: "${{ matrix.python-version }}"
       #- name: Cache multiple paths
       #  uses: actions/cache@v2
       #  with:
@@ -30,9 +30,9 @@ jobs:
       #    key: '${{ runner.os }}-${{ hashFiles(''TODO'') }}'
       - uses: actions/checkout@v2
       - run: pip install -U pip pytest>=3.0.0
-      - run: 'pip install $DJANGO -e .[dev,poster]'
+      - run: "pip install $DJANGO -e .[dev,poster]"
         env:
-          DJANGO: '${{ matrix.DJANGO }}'
+          DJANGO: "${{ matrix.DJANGO }}"
       - run: py.test -vvv --cov .
       - uses: codecov/codecov-action@v2
   lint:
@@ -40,9 +40,9 @@ jobs:
     steps:
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: "3.10"
       - uses: actions/checkout@v2
-      - run: 'pip install -e .[dev,poster]'
+      - run: "pip install -e .[dev,poster]"
       - run: flake8 .
       - run: black --check .
       - run: isort --check .
