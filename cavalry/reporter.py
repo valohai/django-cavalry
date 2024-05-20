@@ -22,9 +22,7 @@ background:rgba(0,0,0,0.8);
 color:#fff;
 padding:1px;
 }
-""".replace(
-    "\n", ""
-).strip()
+""".replace("\n", "").strip()
 
 
 def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summary_data: dict) -> None:

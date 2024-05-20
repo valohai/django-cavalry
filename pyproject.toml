@@ -18,10 +18,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
-    "isort",
-    "pydocstyle",
     "pytest-cov",
     "pytest-django>=3.7.0",
     "requests-mock",
@@ -46,5 +42,24 @@ include = [
     "/cavalry",
 ]
 
-[tool.black]
+[tool.ruff]
 line-length = 119
+
+[tool.ruff.lint]
+extend-select = [
+    "C",
+    "COM",
+    "I",
+]
+
+[[tool.mypy.overrides]]
+module = "django.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "ipware.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "cavalry_tests.settings"
+norecursedirs = [".git", ".tox"]
