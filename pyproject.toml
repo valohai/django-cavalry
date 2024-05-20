@@ -1,9 +1,50 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-cavalry"
+dynamic = ["version"]
+description = "Performance tracer middleware for Django"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.6"
+authors = [
+    { name = "Valohai" },
 ]
-build-backend = "setuptools.build_meta"
+dependencies = [
+    "Django>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "isort",
+    "pydocstyle",
+    "pytest-cov",
+    "pytest-django>=3.7.0",
+    "requests-mock",
+]
+poster = [
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/valohai/django-cavalry"
+
+[tool.hatch.version]
+path = "cavalry/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/cavalry",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "/cavalry",
+]
 
 [tool.black]
 line-length = 119
