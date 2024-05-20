@@ -12,9 +12,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version: "3.6"
+          - python-version: "3.8"
             DJANGO: "django>=2.0,<3"
-          - python-version: "3.6"
+          - python-version: "3.8"
             DJANGO: "django>=3.0,<4"
           - python-version: "3.10"
             DJANGO: "django>=4.0,<5"
