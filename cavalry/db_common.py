@@ -21,7 +21,7 @@ def record(*, db, duration, params, sql, times=None, error=None):
             "hrtime": duration,
             "stack": stack,
             "error": error,
-        }
+        },
     )
     logger.debug(
         "(%.3f) %s; args=%s",

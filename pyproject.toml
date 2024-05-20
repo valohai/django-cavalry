@@ -1,9 +1,66 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.black]
+[project]
+name = "django-cavalry"
+dynamic = ["version"]
+description = "Performance tracer middleware for Django"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "Valohai" },
+]
+dependencies = [
+    "Django>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=3.0.0",
+    "pytest-cov",
+    "pytest-django>=3.7.0",
+    "requests-mock",
+]
+poster = [
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/valohai/django-cavalry"
+
+[tool.hatch.version]
+path = "cavalry/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/cavalry",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "/cavalry",
+]
+
+[tool.ruff]
 line-length = 119
+
+[tool.ruff.lint]
+extend-select = [
+    "C",
+    "COM",
+    "I",
+]
+
+[[tool.mypy.overrides]]
+module = "django.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "ipware.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "cavalry_tests.settings"
+norecursedirs = [".git", ".tox"]

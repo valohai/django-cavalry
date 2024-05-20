@@ -1,5 +1,5 @@
 name: build
-'on':
+"on":
   push:
     branches:
       - master
@@ -7,42 +7,43 @@ name: build
     branches:
       - master
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  test:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          - python-version: '3.6'
-            DJANGO: 'django>=2.0,<3'
-          - python-version: '3.6'
-            DJANGO: 'django>=3.0,<4'
-          - python-version: '3.10'
-            DJANGO: 'django>=4.0,<5'
+          - python-version: "3.8"
+            DJANGO: "django>=2.0,<3"
+          - python-version: "3.8"
+            DJANGO: "django>=3.0,<4"
+          - python-version: "3.10"
+            DJANGO: "django>=4.0,<5"
     steps:
-      - name: 'Set up Python ${{ matrix.python-version }}'
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '${{ matrix.python-version }}'
-      #- name: Cache multiple paths
-      #  uses: actions/cache@v2
-      #  with:
-      #    path: $HOME/.cache/pip
-      #    key: '${{ runner.os }}-${{ hashFiles(''TODO'') }}'
-      - uses: actions/checkout@v2
-      - run: pip install -U pip pytest>=3.0.0
-      - run: 'pip install $DJANGO -e .[dev,poster]'
+          python-version: "${{ matrix.python-version }}"
+          cache: pip
+      - uses: actions/checkout@v4
+      - run: "pip install $DJANGO -e .[dev,poster]"
         env:
-          DJANGO: '${{ matrix.DJANGO }}'
+          DJANGO: "${{ matrix.DJANGO }}"
       - run: py.test -vvv --cov .
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v4
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - uses: actions/checkout@v2
-      - run: 'pip install -e .[dev,poster]'
-      - run: flake8 .
-      - run: black --check .
-      - run: isort --check .
+          python-version: "3.12"
+      - uses: actions/checkout@v4
+      - uses: pre-commit/action@v3.0.1
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/checkout@v4
+      - run: pip install build
+      - run: python -m build

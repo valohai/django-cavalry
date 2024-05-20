@@ -87,14 +87,14 @@ def build_payload(data: dict, request: WSGIRequest, response: HttpResponse) -> d
         payload.update(
             {
                 "view": resolver_match.view_name,
-            }
+            },
         )
     user = getattr(request, "user", None)
     if user:
         payload.update(
             {
                 "user_id": user.id,
-            }
+            },
         )
     payload.update(data)
     payload.pop("start_time", None)
