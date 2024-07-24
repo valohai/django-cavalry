@@ -1,6 +1,6 @@
 import json
 import platform
-from datetime import datetime
+from datetime import datetime, timezone
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
@@ -52,7 +52,7 @@ def post_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> Opti
         return None
     payload = build_payload(data, request, response)
     es_url = es_url_template.format_map(
-        dict(payload, ymd=datetime.utcnow().strftime("%Y-%m-%d")),
+        dict(payload, ymd=datetime.now(timezone.utc).strftime("%Y-%m-%d")),
     )
     body = force_bytes(json.dumps(payload, cls=PayloadJSONEncoder))
     try:
@@ -80,7 +80,7 @@ def build_payload(data: dict, request: WSGIRequest, response: HttpResponse) -> d
         "params": dict(request.GET),
         "path": request.path,
         "status": response.status_code,
-        "time": datetime.utcnow(),
+        "time": datetime.now(timezone.utc),
     }
     resolver_match = getattr(request, "resolver_match", None)
     if resolver_match:
