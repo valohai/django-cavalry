@@ -6,7 +6,8 @@ from django.db import connection
 from cavalry.db_common import record
 from cavalry.timing import get_time
 
-assert django.VERSION[0] != 2, "This module won't work with Django 2"
+if django.VERSION[0] == 2:
+    raise RuntimeError("This module won't work with Django 2")
 
 
 def log_query(execute, sql, params, many, context):

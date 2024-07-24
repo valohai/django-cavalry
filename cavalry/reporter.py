@@ -49,9 +49,9 @@ def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summar
 
 def generate_console_script(data: dict, with_stacks: bool = False) -> List[str]:
     script = []
-    for db, data in data.get("databases", {}).items():
-        queries = data["queries"]
-        header = f'{db}: {data["n_queries"]} queries ({data["time"]:.2f} msec)'
+    for db, datum in data.get("databases", {}).items():
+        queries = datum["queries"]
+        header = f'{db}: {datum["n_queries"]} queries ({datum["time"]:.2f} msec)'
         script.append(f"console.group({json.dumps(header)});")
         for query in queries:
             script.append(build_log_command(query))

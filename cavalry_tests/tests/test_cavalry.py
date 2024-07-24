@@ -5,10 +5,10 @@ import requests_mock
 from django.test import Client
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize("enable", (False, True))
-@pytest.mark.parametrize("as_admin", (False, True))
-@pytest.mark.parametrize("posting", (False, True))
+@pytest.mark.django_db()
+@pytest.mark.parametrize("enable", [False, True])
+@pytest.mark.parametrize("as_admin", [False, True])
+@pytest.mark.parametrize("posting", [False, True])
 def test_cavalry(settings, as_admin, enable, posting, admin_user):
     settings.CAVALRY_ENABLED = enable
     settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE = "http://localhost:59595/asdf/foo" if posting else None

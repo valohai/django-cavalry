@@ -35,10 +35,7 @@ def _process(request, get_response):
         data["databases"] = {}
         for conn in connections.all():
             queries = [q for q in conn.queries if "hrtime" in q]
-            if queries:
-                total_time = sum(q.get("hrtime", 0) * 1000 for q in queries)
-            else:
-                total_time = 0
+            total_time = sum(q.get("hrtime", 0) * 1000 for q in queries) if queries else 0
             data["databases"][conn.alias] = {
                 "queries": queries,
                 "n_queries": len(queries),

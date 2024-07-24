@@ -8,7 +8,8 @@ from django.db.backends.utils import CursorWrapper
 from cavalry.db_common import record
 from cavalry.timing import get_time
 
-assert django.VERSION[0] == 2, "This module won't work with Django 3"
+if django.VERSION[0] != 2:
+    raise RuntimeError("This module only works with Django 2")
 
 DefaultCursorDebugWrapper = db_backend_utils.CursorDebugWrapper
 
