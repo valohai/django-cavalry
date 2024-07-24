@@ -18,6 +18,8 @@ jobs:
             DJANGO: "django>=3.0,<4"
           - python-version: "3.10"
             DJANGO: "django>=4.0,<5"
+          - python-version: "3.12"
+            DJANGO: "django>=5.0,<6"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,6 +32,9 @@ jobs:
           DJANGO: "${{ matrix.DJANGO }}"
       - run: py.test -vvv --cov .
       - uses: codecov/codecov-action@v4
+        with:
+          flags: ${{ matrix.python-version }}-${{ matrix.DJANGO }}
+          token: ${{ secrets.CODECOV_TOKEN }}
   lint:
     runs-on: ubuntu-latest
     steps:

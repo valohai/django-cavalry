@@ -64,3 +64,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "cavalry_tests.settings"
 norecursedirs = [".git", ".tox"]
+filterwarnings = [
+    "error", # consider all other warnings not listed below as errors
+    "ignore:The USE_L10N setting is deprecated:",
+]
