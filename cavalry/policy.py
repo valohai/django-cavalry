@@ -13,7 +13,7 @@ def can_cavalrize(request: WSGIRequest) -> bool:
     if not getattr(settings, "CAVALRY_ENABLED", False):
         return False
     probability = getattr(settings, "CAVALRY_PROBABILITY", 1.0)
-    return probability >= 1 or (random() < probability)
+    return probability >= 1 or (random() < probability)  # noqa: S311
 
 
 def can_post_stats(request: WSGIRequest) -> bool:

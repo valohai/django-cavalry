@@ -48,9 +48,22 @@ line-length = 119
 
 [tool.ruff.lint]
 extend-select = [
+    "B", # bugbear
     "C",
-    "COM",
-    "I",
+    "COM", # trailing commas
+    "E", # pycodestyle
+    "F", # pyflakes
+    "I", # isort
+    "PT",
+    "S", # security
+    "T", # debugger and print
+    "UP", # upgrade
+    "W", # pycodestyle
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"cavalry_tests/**" = [
+    "S101", # Use of assert detected
 ]
 
 [[tool.mypy.overrides]]
@@ -64,3 +77,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "cavalry_tests.settings"
 norecursedirs = [".git", ".tox"]
+filterwarnings = [
+    "error", # consider all other warnings not listed below as errors
+    "ignore:The USE_L10N setting is deprecated:",
+]

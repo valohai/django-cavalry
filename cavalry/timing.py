@@ -1,7 +1,8 @@
 import time
 
 try:
-    assert time.perf_counter()
+    if not time.perf_counter():
+        raise Exception()
     get_time = time.perf_counter
-except:  # noqa
+except Exception:
     get_time = time.time
