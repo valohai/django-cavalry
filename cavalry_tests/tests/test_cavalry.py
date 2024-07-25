@@ -2,14 +2,16 @@ import json
 
 import pytest
 import requests_mock
+from django.http import StreamingHttpResponse
 from django.test import Client
 
 
 @pytest.mark.django_db()
-@pytest.mark.parametrize("enable", [False, True])
-@pytest.mark.parametrize("as_admin", [False, True])
-@pytest.mark.parametrize("posting", [False, True])
-def test_cavalry(settings, as_admin, enable, posting, admin_user):
+@pytest.mark.parametrize("enable", [False, True], ids=("disabled", "enabled"))
+@pytest.mark.parametrize("as_admin", [False, True], ids=("as_user", "as_admin"))
+@pytest.mark.parametrize("posting", [False, True], ids=("nopost", "posting"))
+@pytest.mark.parametrize("streaming", [False, True], ids=("regular", "streaming"))
+def test_cavalry(settings, as_admin, enable, posting, admin_user, streaming):
     settings.CAVALRY_ENABLED = enable
     settings.CAVALRY_ELASTICSEARCH_URL_TEMPLATE = "http://localhost:59595/asdf/foo" if posting else None
     client = Client()
@@ -24,13 +26,22 @@ def test_cavalry(settings, as_admin, enable, posting, admin_user):
             status_code=201,
             json={"ok": True},
         )
-        content = client.get("/").content
+        resp = client.get("/streaming/" if streaming else "/")
+        if isinstance(resp, StreamingHttpResponse):
+            content = resp.getvalue()
+        else:
+            content = resp.content
 
     # Check precondition: the user seemed logged in
-    assert (admin_user.username.encode() in content) == as_admin
+    assert (f"Henlo {admin_user.username}".encode() in content) == as_admin
 
-    # Check that the injection div only appears for admins
-    assert (b"<div" in content) == (enable and as_admin)
+    should_expose_info = enable and as_admin
+    # Check that the injection div/header only appears for admins and when not streaming
+    assert (b"<div" in content) == (should_expose_info and not streaming)
+    # Check the header is present when it should be, and is parseable
+    assert ("x-cavalry-data" in resp) == should_expose_info
+    if "x-cavalry-data" in resp:
+        assert json.loads(resp["x-cavalry-data"])
 
     # Check that stats are posted only when posting is enabled
     assert bool(m.called) == (enable and posting)

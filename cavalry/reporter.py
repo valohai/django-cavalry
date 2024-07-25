@@ -4,7 +4,7 @@ import uuid
 from typing import List, Optional
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 
 from cavalry.policy import can_report_stacks
 from cavalry.stack import Stack
@@ -28,7 +28,7 @@ padding:1px;
 def inject_html(request: WSGIRequest, response: HttpResponse, data: dict, summary_data: dict) -> None:
     try:
         body_closing_index = response.content.rindex(b"</body>")
-    except ValueError:
+    except (AttributeError, ValueError):
         return
     content = " | ".join(
         f"{key}={round(value, 3) if isinstance(value, float) else value}"
@@ -82,10 +82,16 @@ def build_log_command(query: dict) -> str:
 
 def inject_stats(request: WSGIRequest, response: HttpResponse, data: dict) -> None:
     summary_data = summarize_data(data)
-    content_type = response.get("content-type", "").lower()
-    if content_type.startswith("text/html") and ("charset" not in content_type or "utf-8" in content_type):
-        inject_html(request, response, data, summary_data)
     response["x-cavalry-data"] = json.dumps(summary_data)
+    if can_inject_html(response):
+        inject_html(request, response, data, summary_data)
+
+
+def can_inject_html(response: HttpResponse) -> bool:
+    if isinstance(response, StreamingHttpResponse):
+        return False
+    content_type = response.get("content-type", "").lower()
+    return content_type.startswith("text/html") and ("charset" not in content_type or "utf-8" in content_type)
 
 
 def summarize_data(data: dict) -> dict:
