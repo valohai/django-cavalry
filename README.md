@@ -76,8 +76,16 @@ Not posting stack traces makes the ES payloads smaller.
 
 ## Runtime
 
-When running in `DEBUG`, or when you're a superuser, Cavalry injects a small perf bar
-into each rendered HTML page, as well as a script segment that outputs SQL queries into the dev console.
+When
 
-By default, stack traces are not printed for the SQL queries; add the `_cavalry_stacks` query parameter to have
-them printed too.
+* running in `DEBUG`, or
+* when you're a superuser, or
+* if `request._cavalry_can_inject_stats` is truthy (e.g. via a middleware of your own design)
+  * Note that this may, especially in conjunction with `_cavalry_stacks`, reveal sensitive information.
+    Be very diligent with that middleware.
+
+Cavalry injects a small perf bar into each rendered HTML page,
+as well as a script segment that outputs SQL queries into the dev console.
+
+By default, stack traces are not printed for the SQL queries;
+add the `_cavalry_stacks` query parameter to have them printed too.

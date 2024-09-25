@@ -42,6 +42,9 @@ def can_inject_stats(request: WSGIRequest) -> bool:
     if settings.DEBUG:
         return True
 
+    if getattr(request, "_cavalry_can_inject_stats", False):
+        return True
+
     # When the user (if there is one) is a superuser, stats can be shown
     user = getattr(request, "user", None)
     if user and getattr(user, "is_superuser", False):
