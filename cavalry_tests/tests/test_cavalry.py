@@ -6,7 +6,7 @@ from django.http import StreamingHttpResponse
 from django.test import Client
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 @pytest.mark.parametrize("enable", [False, True], ids=("disabled", "enabled"))
 @pytest.mark.parametrize("as_admin", [False, True], ids=("as_user", "as_admin"))
 @pytest.mark.parametrize("posting", [False, True], ids=("nopost", "posting"))
