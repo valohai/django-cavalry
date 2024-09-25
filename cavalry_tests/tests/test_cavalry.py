@@ -2,11 +2,25 @@ import json
 
 import pytest
 import requests_mock
-from django.http import StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.test import Client
 
 
-@pytest.mark.django_db()
+def assert_response_content(
+    resp: HttpResponse,
+    content: bytes,
+    *,
+    should_expose_info: bool,
+    should_have_html: bool,
+) -> None:
+    assert (b"<div" in content) == should_have_html
+    # Check the header is present when it should be, and is parseable
+    assert ("x-cavalry-data" in resp) == should_expose_info
+    if "x-cavalry-data" in resp:
+        assert json.loads(resp["x-cavalry-data"])
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("enable", [False, True], ids=("disabled", "enabled"))
 @pytest.mark.parametrize("as_admin", [False, True], ids=("as_user", "as_admin"))
 @pytest.mark.parametrize("posting", [False, True], ids=("nopost", "posting"))
@@ -35,13 +49,13 @@ def test_cavalry(settings, as_admin, enable, posting, admin_user, streaming):
     # Check precondition: the user seemed logged in
     assert (f"Henlo {admin_user.username}".encode() in content) == as_admin
 
-    should_expose_info = enable and as_admin
     # Check that the injection div/header only appears for admins and when not streaming
-    assert (b"<div" in content) == (should_expose_info and not streaming)
-    # Check the header is present when it should be, and is parseable
-    assert ("x-cavalry-data" in resp) == should_expose_info
-    if "x-cavalry-data" in resp:
-        assert json.loads(resp["x-cavalry-data"])
+    assert_response_content(
+        resp,
+        content,
+        should_expose_info=(enable and as_admin),
+        should_have_html=(enable and as_admin and not streaming),
+    )
 
     # Check that stats are posted only when posting is enabled
     assert bool(m.called) == (enable and posting)
@@ -52,3 +66,21 @@ def test_cavalry(settings, as_admin, enable, posting, admin_user, streaming):
         database_info = payload["databases"]["default"]
         if database_info["n_queries"]:
             assert database_info["time"] > 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("arg", ["", "?plsplspls=1"])
+def test_can_inject_stats_override(settings, client, arg):
+    """
+    Test that a view (or a middleware) can enable stats injection
+    despite the user not being a superuser, or DEBUG being off.
+    """
+    settings.CAVALRY_ENABLED = True
+    settings.DEBUG = False
+    resp = client.get(f"/overrider/{arg}")
+    assert_response_content(
+        resp,
+        resp.content,
+        should_expose_info=bool(arg),
+        should_have_html=bool(arg),
+    )
